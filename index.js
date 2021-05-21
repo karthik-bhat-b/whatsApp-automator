@@ -4,12 +4,6 @@ const path = require('path')
 const fs = require('fs')
 var urlList = []
 
-xlsxFile('./resources/contacts.xlsx').then((rows) => {
-    for (i in rows) {
-        urlList.push(rows[i][0].toString())
-    }
-})
-
 function delay(time) {
     return new Promise(function (resolve) {
         setTimeout(resolve, time)
@@ -50,9 +44,11 @@ function delay(time) {
             timeout: 100000
         });
         console.log("Going to: " + urlList[index])
-        await page.$x("//div[contains(text(), 'Type a message')]");
+       
         try {
             await page.waitForSelector('span[data-icon="clip"]', { visible: true })
+            const msg = await page.$x("//div[contains(text(), 'Type a message')]");
+            await page.type(msg, "Hello")
             //await page.click('span[data-icon="clip"]')
         } catch {
             console.log("Invalid Number! Clip not Found")
