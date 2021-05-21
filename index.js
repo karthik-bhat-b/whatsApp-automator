@@ -16,6 +16,8 @@ function delay(time) {
             urlList.push(rows[i][0].toString())
         }
     })
+    const pathFile = __dirname.split('\\').slice(0, 4).join('/resources/attachment')
+    const fileExitst = fs.existsSync(`${pathFile}/sample.jpeg`)
 
     const browser = await puppeteer.launch({
         headless: false,
@@ -49,7 +51,15 @@ function delay(time) {
             await page.waitForSelector('span[data-icon="clip"]', { visible: true })
             const msg = await page.$x("//div[contains(text(), 'Type a message')]");
             await page.type(msg, "Hello")
-            //await page.click('span[data-icon="clip"]')
+            await page.click('span[data-icon="clip"]')
+            await page.waitForSelector('input[type="file"]')
+	        const input = await page.$('input[accept="image/*,video/mp4,video/3gpp,video/quicktime"]')
+	        if (fileExitst) {
+		    await input.uploadFile(`${pathFile}/sample.jpeg`)
+            await page.click('span[data-testid="send"]')
+	        }
+
+
         } catch {
             console.log("Invalid Number! Clip not Found")
         }
