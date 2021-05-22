@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/karthik-bhat-b/whatsApp-automator.git"
-},
+  },
   "author": "Karthik Bhat B",
   "license": "ISC",
   "dependencies": {
