@@ -1,8 +1,6 @@
 const puppeteer = require('puppeteer');
 const xlsxFile = require('read-excel-file/node');
-const path = require('path')
-const fs = require('fs')
-var urlList = []
+var numberList = []
 
 function delay(time) {
     return new Promise(function (resolve) {
@@ -11,14 +9,11 @@ function delay(time) {
 }
 
 (async () => {
-    await xlsxFile('./resources/contacts.xlsx').then((rows) => {
+    await xlsxFile('./contacts.xlsx').then((rows) => {
         for (i in rows) {
-            urlList.push(rows[i][0].toString())
+            numberList.push(rows[i][0].toString())
         }
     })
-    const pathFile = __dirname.split('\\').slice(0, 4).join('/resources/attachment')
-    const fileExitst = fs.existsSync(`${pathFile}/sample.jpeg`)
-
     const browser = await puppeteer.launch({
         headless: false,
         defaultViewport: null,
@@ -40,31 +35,24 @@ function delay(time) {
     await delay(40000); // You have 40 Seconds to scan QR code and wait :)
 
     // Message window opens for each number
-    for (let index = 0; index < urlList.length; index++) {
-        await page.goto("https://web.whatsapp.com/send?phone=" + urlList[index] + "&text&app_absent=0", {
+    for (let index = 0; index < numberList.length; index++) {
+        await page.goto("https://web.whatsapp.com/send?phone=" + numberList[index] + "&text&app_absent=0", {
             waitUntil: 'load',
             timeout: 100000
         });
-        console.log("Going to: " + urlList[index])
+        console.log("Going to: " + numberList[index])
        
         try {
             await page.waitForSelector('span[data-icon="clip"]', { visible: true })
-            const msg = await page.$x("//div[contains(text(), 'Type a message')]");
-            await page.type(msg, "Hello")
-            await page.click('span[data-icon="clip"]')
-            await page.waitForSelector('input[type="file"]')
-	        const input = await page.$('input[accept="image/*,video/mp4,video/3gpp,video/quicktime"]')
-	        if (fileExitst) {
-		    await input.uploadFile(`${pathFile}/sample.jpeg`)
-            await page.click('span[data-testid="send"]')
-	        }
-
+            // Now Message window will be open in browser.
+            // For Now please copy paste your message and attach media. 
 
         } catch {
             console.log("Invalid Number! Clip not Found")
         }
-        await delay(20000);
-        console.log("   Closed: " + urlList[index] + " X")
+        await delay(20000); // WAITING TIME TO ENTER THE MESSAGE
+
+        console.log("   Closed: " + numberList[index] + " X")
     }
     console.log("Done!!")
 })();
